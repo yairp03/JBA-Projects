@@ -44,7 +44,7 @@ def main():
     choice = 1
     while choice != EXIT:
         print(MENU)
-        choice = int(input())
+        choice = safe_input('', int)
         print()
         if choice == TODAY_TASKS:
             print_today_tasks()
@@ -58,6 +58,14 @@ def main():
             add_task()
         elif choice == DELETE_TASK:
             delete_task()
+
+
+def safe_input(text, func):
+    while True:
+        try:
+            return func(input(text))
+        except Exception as e:
+            print(e)
 
 
 def print_tasks_list(tasks, nothing="Nothing to do!"):
@@ -97,7 +105,7 @@ def print_missed_tasks():
 
 def add_task():
     task = input("Enter task\n")
-    deadline = datetime.strptime(input("Enter deadline\n"), "%Y-%m-%d")
+    deadline = safe_input("Enter deadline (YYYY-MM-DD)\n", lambda date_str: datetime.strptime(date_str, "%Y-%m-%d"))
     new_row = Task(task=task, deadline=deadline)
     session.add(new_row)
     session.commit()
@@ -107,11 +115,11 @@ def add_task():
 def delete_task():
     rows = session.query(Task).order_by(Task.deadline).all()
     if not rows:
-        print("Nothing to delete!")
+        print("Nothing to delete!\n")
         return
     print("Choose the number of the task you want to delete:")
     print_tasks_list(rows)
-    session.delete(rows[int(input()) - 1])
+    session.delete(safe_input('', lambda x: rows[int(x) - 1]))
     session.commit()
 
 
