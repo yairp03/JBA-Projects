@@ -123,7 +123,5 @@ def delete_task():
     session.commit()
 
 
-
-
 if __name__ == '__main__':
     main()
